@@ -1,0 +1,51 @@
+{
+  "name": "Talvio Generator #06513 — Black Dot",
+  "description": "Talvio Generator — Black Dot robot collection of 10,000. Pixel robot waving hello, generated from the #0001 main character trait system.",
+  "image": "06513.png",
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Ghost Dot"
+    },
+    {
+      "trait_type": "Face",
+      "value": "Lavender"
+    },
+    {
+      "trait_type": "Ears",
+      "value": "Cyan"
+    },
+    {
+      "trait_type": "Eyes",
+      "value": "X Dot"
+    },
+    {
+      "trait_type": "Antenna",
+      "value": "Halo"
+    },
+    {
+      "trait_type": "Chest Core",
+      "value": "White Ring"
+    },
+    {
+      "trait_type": "Mouth",
+      "value": "Smile"
+    },
+    {
+      "trait_type": "Extra",
+      "value": "Blush"
+    },
+    {
+      "trait_type": "Aura",
+      "value": "Gold Ring"
+    },
+    {
+      "trait_type": "Body",
+      "value": "Charcoal"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
+    }
+  ]
+}
