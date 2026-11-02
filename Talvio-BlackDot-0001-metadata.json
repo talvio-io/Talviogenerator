@@ -1,0 +1,15 @@
+{
+  "name": "Talvio Generator #0001 — Black Dot",
+  "description": "Contoh NFT pertama Talvio Generator. Robot pixel bertema Black Dot yang melambai hello, dengan mata black dot, antena Black Dot Orb, dan core Black Dot emas di dada. Terinspirasi konsep HelloAgents: pixel robot ramah, supply 10.000.",
+  "image": "Talvio-BlackDot-0001.png",
+  "attributes": [
+    { "trait_type": "Theme", "value": "Black Dot" },
+    { "trait_type": "Background", "value": "Black Dot Halftone" },
+    { "trait_type": "Character", "value": "Generator Bot" },
+    { "trait_type": "Eyes", "value": "Black Dot" },
+    { "trait_type": "Antenna", "value": "Black Dot Orb" },
+    { "trait_type": "Chest Core", "value": "Gold Black Dot" },
+    { "trait_type": "Pose", "value": "Waving Hello" },
+    { "trait_type": "Rarity", "value": "Example / Prototype" }
+  ]
+}
