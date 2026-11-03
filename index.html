@@ -109,7 +109,9 @@ section{padding:64px 0}
 .prow b{color:var(--text)}
 .tiers{display:grid;grid-template-columns:1fr 1fr;gap:18px}
 @media(max-width:760px){.tiers{grid-template-columns:1fr}}
-.tier{border:1px solid var(--line);border-radius:20px;padding:24px;background:var(--panel)}
+.tier{border:1px solid var(--line);border-radius:20px;padding:24px;background:var(--panel);cursor:pointer}
+.tier.sel{border-color:var(--gold);box-shadow:0 0 0 1px var(--gold)}
+#tierPaid.sel{border-color:var(--cyan);box-shadow:0 0 0 1px var(--cyan)}
 .tier.hot{border-color:var(--gold);background:linear-gradient(180deg,rgba(255,196,0,.07),var(--panel))}
 .tier .tag{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--cyan)}
 .tier.hot .tag{color:var(--gold)}
@@ -234,19 +236,21 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
       <div class="prow"><span><b id="mintedCount">20</b> / 10,000 <span data-i18n="mintedWord">MINTED</span> (<span id="mintedPct">0.2</span>%)</span><span><span data-i18n="liveWord">LIVE ON BNB CHAIN</span> · <b id="leftCount">9,980</b> <span data-i18n="leftWord">LEFT</span></span></div>
 
       <div class="tiers">
-        <div class="tier hot">
+        <div class="tier hot" id="tierFree" onclick="pickTier('free')">
           <div class="tag" data-i18n="tier1">TIER 1</div><h3 data-i18n="freeMint">FREE MINT</h3>
           <div class="price">0 BNB</div>
           <p data-i18n="freeDesc">Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.</p>
           <div class="left"><span data-i18n="freeLeftLabel">YOUR FREE LEFT:</span> <b id="freeLeft" style="color:var(--text)">—</b></div>
         </div>
-        <div class="tier">
+        <div class="tier" id="tierPaid" onclick="pickTier('paid')">
           <div class="tag" data-i18n="tier2">TIER 2</div><h3 data-i18n="paidMint">PAID MINT</h3>
           <div class="price">0.002 BNB</div>
           <p data-i18n="paidDesc">Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.</p>
           <div class="left"><span data-i18n="paidLeftLabel">YOUR PAID LEFT:</span> <b id="paidLeft" style="color:var(--text)">—</b></div>
         </div>
       </div>
+
+      <div class="prow" style="margin-top:16px"><span><span data-i18n="balLabel">YOUR BNB BALANCE:</span> <b id="walletBal" style="color:var(--text)">—</b></span><span data-i18n="tierHint">Tap a tier to select it</span></div>
 
       <div class="qtyrow">
         <div class="qty">
@@ -346,7 +350,8 @@ en:{
   tier1:"TIER 1", tier2:"TIER 2", freeMint:"FREE MINT", paidMint:"PAID MINT",
   freeDesc:"Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.",
   paidDesc:"Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.",
-  freeLeftLabel:"YOUR FREE LEFT:", paidLeftLabel:"YOUR PAID LEFT:",
+  freeLeftLabel:"YOUR FREE LEFT:", paidLeftLabel:"YOUR PAID LEFT:", balLabel:"YOUR BNB BALANCE:", tierHint:"Tap a tier to select it",
+  lowBalMsg:(need,have)=>"Not enough BNB in your wallet. This mint needs about " + need + " BNB (mint price + gas), but your wallet only holds " + have + " BNB. Top up a little BNB, then try again.",
   totalLabel:"TOTAL:", mintNow:"Mint Now",
   notice:"■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.",
   noticeClosed:"■ CONTRACT LIVE — MINT NOT OPEN YET ■ Contract <b>0x7169…e63c</b> on BNB Chain. Minting opens when the owner opens it from the deploy page.",
@@ -405,7 +410,8 @@ zh:{
   tier1:"等级 1", tier2:"等级 2", freeMint:"免费铸造", paidMint:"付费铸造",
   freeDesc:"你的前 2 个生成器免费 —— 只需支付 Gas 费。每个钱包限领一次。",
   paidDesc:"继续生成。每个钱包最多付费铸造 20 个，每个固定 0.002 BNB。",
-  freeLeftLabel:"你的免费剩余：", paidLeftLabel:"你的付费剩余：",
+  freeLeftLabel:"你的免费剩余：", paidLeftLabel:"你的付费剩余：", balLabel:"你的 BNB 余额：", tierHint:"点按等级进行选择",
+  lowBalMsg:(need,have)=>"钱包中的 BNB 不足。此次铸造约需 " + need + " BNB（价格 + 燃料费），但你的钱包只有 " + have + " BNB。请先补充少量 BNB，然后重试。",
   totalLabel:"总计：", mintNow:"立即铸造",
   notice:"■ 合约尚未部署 ■ 本铸造页面已完全就绪 —— 将 Talvio Generator 合约地址填入本文件底部脚本中的 <b>CONTRACT_ADDRESS</b> 变量，铸造按钮即会在 BNB 链上正式启用。",
   noticeClosed:"■ 合约已上线 — 铸造尚未开启 ■ 合约 <b>0x7169…e63c</b>（BNB 链）。所有者在部署页面开启后即可铸造。",
@@ -511,7 +517,16 @@ async function loadWalletLimits(){
     document.getElementById('freeLeft').textContent = walletFreeLeft;
     document.getElementById('paidLeft').textContent = walletPaidLeft;
     syncMint();
+    fetchWalletBal();
   }catch(e){ /* keep defaults */ }
+}
+
+async function fetchWalletBal(){
+  if (!wallet || typeof ethers === 'undefined') return;
+  try{
+    const bal = await readChain((c)=>c.runner.provider.getBalance(wallet));
+    document.getElementById('walletBal').textContent = Number(ethers.formatEther(bal)).toFixed(5) + ' BNB';
+  }catch(e){ /* keep dash */ }
 }
 
 function clampQty(){
@@ -536,6 +551,15 @@ function syncMint(){
   document.getElementById('totalPrice').textContent = p.total + ' BNB';
   document.getElementById('totalNote').textContent = d.totalNote(p.free, p.paid);
   document.getElementById('agentPrompt').textContent = d.prompt(q, p.free, p.paid, p.total);
+  const tf = document.getElementById('tierFree'), tp = document.getElementById('tierPaid');
+  if (tf && tp){ tf.classList.toggle('sel', p.paid === 0); tp.classList.toggle('sel', p.paid > 0); }
+}
+function pickTier(which){
+  const freeCap = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
+  const inp = document.getElementById('qty');
+  if (which === 'free'){ inp.value = Math.max(1, freeCap); }
+  else { inp.value = freeCap + 1; }
+  syncMint();
 }
 
 async function connectWallet(){
@@ -562,6 +586,7 @@ function watchWalletChanges(){
       document.getElementById('connectBtn').textContent = I18N[LANG].connect;
       document.getElementById('freeLeft').textContent = '—';
       document.getElementById('paidLeft').textContent = '—';
+      document.getElementById('walletBal').textContent = '—';
       syncMint();
     } else {
       wallet = accs[0];
@@ -594,6 +619,20 @@ async function mintNow(){
     if (!(await c.mintOpen())){ alert(d.mintClosedMsg); return; }
     const q = clampQty();
     const cost = await c.costFor(wallet, q);
+    // Pre-flight balance check: fail with a clear message instead of a raw wallet error
+    try{
+      const bal = await bp.getBalance(wallet);
+      let need = cost;
+      try{
+        const gasLimit = await c.mint.estimateGas(q, { value: cost });
+        const feeData = await bp.getFeeData();
+        if (feeData && feeData.gasPrice) need = cost + gasLimit * feeData.gasPrice;
+      }catch(estErr){ /* estimation reverted (e.g. limit) — let the send below surface the real reason */ }
+      if (bal < need){
+        alert(d.lowBalMsg(Number(ethers.formatEther(need)).toFixed(5), Number(ethers.formatEther(bal)).toFixed(5)));
+        return;
+      }
+    }catch(balErr){ /* balance read failed — proceed and let the wallet handle it */ }
     const tx = await c.mint(q, { value: cost });
     await tx.wait();
     alert(d.mintSuccessMsg(tx.hash));
