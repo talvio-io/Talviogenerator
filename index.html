@@ -8,6 +8,7 @@
 <link rel="icon" href="logo-talvio-generator.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
 <style>
 :root{--bg:#050508;--panel:#0d0d13;--panel2:#12121b;--line:#262633;--text:#f5f6fa;--muted:#9a9cae;--gold:#ffc400;--cyan:#00e5ff;--pink:#ff96aa}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -242,7 +243,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
         <button class="btn cyan" id="mintBtn" onclick="mintNow()" data-i18n="mintNow">Mint Now</button>
       </div>
 
-      <div class="notice" data-i18n-html="notice">■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.</div>
+      <div class="notice" id="mintNotice" data-i18n-html="notice">■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.</div>
 
       <div class="agentbox">
         <h3 data-i18n="agentTitle">MINT WITH AN AGENT</h3>
@@ -293,7 +294,9 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
 
 <script>
 /* ====== MINT SETTINGS — edit here after the contract is deployed ====== */
-const CONTRACT_ADDRESS = "";            // <-- put the Talvio Generator contract address here
+const CONTRACT_ADDRESS = "0x7169a6b08210d7568f146da02431A8D4270ce63c"; // Talvio Generator on BNB Chain mainnet (deployed 2026-11-03)
+const TALVIO_ABI_MIN = ["function totalMinted() view returns (uint256)","function mintOpen() view returns (bool)","function costFor(address,uint256) view returns (uint256)","function freeClaimedOf(address) view returns (uint256)","function paidMintedOf(address) view returns (uint256)","function mint(uint256) payable"];
+const BSC_RPC = "https://bsc-dataseed.binance.org/";
 const TOTAL_SUPPLY = 10000;
 const MINTED_DEMO  = 20;                // demo figure until the contract reads live
 const FREE_PER_WALLET = 2;
@@ -330,6 +333,11 @@ en:{
   freeLeftLabel:"YOUR FREE LEFT:", paidLeftLabel:"YOUR PAID LEFT:",
   totalLabel:"TOTAL:", mintNow:"Mint Now",
   notice:"■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.",
+  noticeClosed:"■ CONTRACT LIVE — MINT NOT OPEN YET ■ Contract <b>0x7169…e63c</b> on BNB Chain. Minting opens when the owner opens it from the deploy page.",
+  noticeLive:"■ MINT IS LIVE ■ Contract <b>0x7169…e63c</b> · BNB Chain mainnet. First 2 per wallet free, then 0.002 BNB.",
+  mintClosedMsg:"Mint is not open yet — the owner has not opened minting.",
+  mintSuccessMsg:(h)=>"Mint successful! Transaction: " + h,
+  mintFailMsg:(e)=>"Mint failed: " + e,
   agentTitle:"MINT WITH AN AGENT",
   agentDesc:"No browser wallet? No problem. Set how many above, copy the prompt, and send it to an AI agent whose wallet holds a Binance Agent ID — it mints straight from its own wallet. The command runs preview first, so nothing executes without confirmation.",
   copyBtn:"Copy Prompt", copiedMsg:"✓ Prompt copied — send it to your agent",
@@ -384,6 +392,11 @@ zh:{
   freeLeftLabel:"你的免费剩余：", paidLeftLabel:"你的付费剩余：",
   totalLabel:"总计：", mintNow:"立即铸造",
   notice:"■ 合约尚未部署 ■ 本铸造页面已完全就绪 —— 将 Talvio Generator 合约地址填入本文件底部脚本中的 <b>CONTRACT_ADDRESS</b> 变量，铸造按钮即会在 BNB 链上正式启用。",
+  noticeClosed:"■ 合约已上线 — 铸造尚未开启 ■ 合约 <b>0x7169…e63c</b>（BNB 链）。所有者在部署页面开启后即可铸造。",
+  noticeLive:"■ 铸造已开启 ■ 合约 <b>0x7169…e63c</b> · BNB 链主网。每钱包首 2 个免费，之后 0.002 BNB。",
+  mintClosedMsg:"铸造尚未开启 —— 所有者还没有开启铸造。",
+  mintSuccessMsg:(h)=>"铸造成功！交易：" + h,
+  mintFailMsg:(e)=>"铸造失败：" + e,
   agentTitle:"通过智能体铸造",
   agentDesc:"没有浏览器钱包？没问题。在上方设置数量，复制提示词，发送给持有 Binance Agent ID 钱包的 AI 智能体 —— 它会直接从自己的钱包铸造。命令会先运行预览，未经确认不会执行。",
   copyBtn:"复制提示词", copiedMsg:"✓ 提示词已复制 —— 发送给你的智能体",
@@ -431,20 +444,51 @@ function setLang(l){
   if (!wallet) document.getElementById('connectBtn').textContent = d.connect;
   renderMarquee();
   syncMint();
+  renderNotice();
 }
 
 function renderMarquee(){
   document.getElementById('marqueeTrack').innerHTML = I18N[LANG].marquee.repeat(4);
 }
 
-/* Progress */
-(function(){
-  const pct = (MINTED_DEMO / TOTAL_SUPPLY * 100).toFixed(1);
+/* Progress — reads the live contract when an address is set */
+let chainMinted = null, chainOpen = false;
+function updateProgress(minted){
+  const pct = (minted / TOTAL_SUPPLY * 100).toFixed(1);
   document.getElementById('mintBar').style.width = Math.max(pct, .2) + '%';
-  document.getElementById('mintedCount').textContent = MINTED_DEMO.toLocaleString('en-US');
+  document.getElementById('mintedCount').textContent = minted.toLocaleString('en-US');
   document.getElementById('mintedPct').textContent = pct;
-  document.getElementById('leftCount').textContent = (TOTAL_SUPPLY - MINTED_DEMO).toLocaleString('en-US');
-})();
+  document.getElementById('leftCount').textContent = (TOTAL_SUPPLY - minted).toLocaleString('en-US');
+}
+updateProgress(MINTED_DEMO);
+function readContract(){
+  return new ethers.Contract(CONTRACT_ADDRESS, TALVIO_ABI_MIN, new ethers.JsonRpcProvider(BSC_RPC));
+}
+function renderNotice(){
+  const el = document.getElementById('mintNotice');
+  if (!el) return;
+  if (!CONTRACT_ADDRESS){ el.innerHTML = I18N[LANG].notice; return; }
+  el.innerHTML = chainOpen ? I18N[LANG].noticeLive : I18N[LANG].noticeClosed;
+}
+async function refreshChain(){
+  if (!CONTRACT_ADDRESS || typeof ethers === 'undefined'){ renderNotice(); return; }
+  try{
+    const c = readContract();
+    const [m, o] = await Promise.all([c.totalMinted(), c.mintOpen()]);
+    chainMinted = Number(m); chainOpen = o;
+    updateProgress(chainMinted);
+  }catch(e){ /* keep fallback numbers */ }
+  renderNotice();
+}
+async function loadWalletLimits(){
+  if (!CONTRACT_ADDRESS || !wallet || typeof ethers === 'undefined') return;
+  try{
+    const c = readContract();
+    const [fc, pm] = await Promise.all([c.freeClaimedOf(wallet), c.paidMintedOf(wallet)]);
+    document.getElementById('freeLeft').textContent = Math.max(0, FREE_PER_WALLET - Number(fc));
+    document.getElementById('paidLeft').textContent = Math.max(0, PAID_MAX_PER_WALLET - Number(pm));
+  }catch(e){ /* keep defaults */ }
+}
 
 function clampQty(){
   let q = parseInt(document.getElementById('qty').value || '1', 10);
@@ -475,15 +519,34 @@ async function connectWallet(){
     document.getElementById('connectBtn').textContent = wallet.slice(0,6) + '…' + wallet.slice(-4);
     document.getElementById('freeLeft').textContent = FREE_PER_WALLET;
     document.getElementById('paidLeft').textContent = PAID_MAX_PER_WALLET;
+    loadWalletLimits();
   }catch(e){ /* user rejected */ }
 }
 
-function mintNow(){
+async function mintNow(){
   const d = I18N[LANG];
   if (!CONTRACT_ADDRESS){ alert(d.notDeployed); return; }
   if (!wallet){ connectWallet(); return; }
-  const q = clampQty(), p = pricing(q);
-  alert(d.mintReady(q, p.free, p.paid, p.total));
+  if (typeof ethers === 'undefined'){ alert(d.mintFailMsg('ethers library not loaded')); return; }
+  try{
+    const chainId = await window.ethereum.request({ method:'eth_chainId' });
+    if (parseInt(chainId, 16) !== 56){
+      await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId:'0x38' }] });
+    }
+    const bp = new ethers.BrowserProvider(window.ethereum);
+    const signer = await bp.getSigner();
+    const c = new ethers.Contract(CONTRACT_ADDRESS, TALVIO_ABI_MIN, signer);
+    if (!(await c.mintOpen())){ alert(d.mintClosedMsg); return; }
+    const q = clampQty();
+    const cost = await c.costFor(wallet, q);
+    const tx = await c.mint(q, { value: cost });
+    await tx.wait();
+    alert(d.mintSuccessMsg(tx.hash));
+    refreshChain();
+    loadWalletLimits();
+  }catch(e){
+    alert(d.mintFailMsg((e && (e.shortMessage || e.message)) || e));
+  }
 }
 
 function copyPrompt(){
@@ -495,6 +558,7 @@ function copyPrompt(){
 }
 
 setLang(LANG);
+refreshChain();
 </script>
 </body>
 </html>

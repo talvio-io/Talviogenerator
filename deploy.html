@@ -101,7 +101,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px;margin-top:26px;colo
   <div class="step">
     <h2><span class="n">3</span><span data-i18n="s3t">Contract Address</span></h2>
     <div class="row" style="margin-top:0">
-      <input type="text" class="addr" id="contractAddr" placeholder="0x…">
+      <input type="text" class="addr" id="contractAddr" placeholder="0x…" value="0x7169a6b08210d7568f146da02431A8D4270ce63c">
       <button class="btn ghost" onclick="loadStatus()" data-i18n="load">Load Status</button>
     </div>
     <div class="status" id="contractStatus"></div>
@@ -388,6 +388,7 @@ async function withdraw(){
 }
 
 setLang(LANG);
+if (document.getElementById('contractAddr').value.trim()) loadStatus();
 </script>
 </body>
 </html>
