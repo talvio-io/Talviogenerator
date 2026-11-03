@@ -318,6 +318,7 @@ const PAID_PRICE_BNB  = 0.002;
 const PAID_MAX_PER_WALLET = 20;
 
 let wallet = null;
+let walletFreeLeft = null, walletPaidLeft = null; // real on-chain allowance once connected
 
 /* ====== i18n — English / 中文 only ====== */
 const I18N = {
@@ -504,23 +505,29 @@ async function loadWalletLimits(){
   if (!CONTRACT_ADDRESS || !wallet || typeof ethers === 'undefined') return;
   try{
     const [fc, pm] = await readChain(c => Promise.all([c.freeClaimedOf(wallet), c.paidMintedOf(wallet)]));
-    document.getElementById('freeLeft').textContent = Math.max(0, FREE_PER_WALLET - Number(fc));
-    document.getElementById('paidLeft').textContent = Math.max(0, PAID_MAX_PER_WALLET - Number(pm));
+    walletFreeLeft = Math.max(0, FREE_PER_WALLET - Number(fc));
+    walletPaidLeft = Math.max(0, PAID_MAX_PER_WALLET - Number(pm));
+    document.getElementById('freeLeft').textContent = walletFreeLeft;
+    document.getElementById('paidLeft').textContent = walletPaidLeft;
+    syncMint();
   }catch(e){ /* keep defaults */ }
 }
 
 function clampQty(){
   let q = parseInt(document.getElementById('qty').value || '1', 10);
   if (isNaN(q) || q < 1) q = 1;
-  if (q > FREE_PER_WALLET + PAID_MAX_PER_WALLET) q = FREE_PER_WALLET + PAID_MAX_PER_WALLET;
+  const maxQ = (walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET) + (walletPaidLeft !== null ? walletPaidLeft : PAID_MAX_PER_WALLET);
+  if (q > Math.max(1, maxQ)) q = Math.max(1, maxQ);
   document.getElementById('qty').value = q;
   return q;
 }
 function stepQty(d){ document.getElementById('qty').value = clampQty() + d; syncMint(); }
 
 function pricing(q){
-  const free = Math.min(q, FREE_PER_WALLET);
-  const paid = q - free;
+  const freeCap = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
+  const paidCap = walletPaidLeft !== null ? walletPaidLeft : PAID_MAX_PER_WALLET;
+  const free = Math.min(q, freeCap);
+  const paid = Math.min(q - free, paidCap);
   return { free, paid, total: (paid * PAID_PRICE_BNB).toFixed(3) };
 }
 function syncMint(){
@@ -536,6 +543,7 @@ async function connectWallet(){
     const accs = await window.ethereum.request({ method:'eth_requestAccounts' });
     wallet = accs[0];
     document.getElementById('connectBtn').textContent = wallet.slice(0,6) + '…' + wallet.slice(-4);
+    walletFreeLeft = FREE_PER_WALLET; walletPaidLeft = PAID_MAX_PER_WALLET; // provisional, replaced by loadWalletLimits
     document.getElementById('freeLeft').textContent = FREE_PER_WALLET;
     document.getElementById('paidLeft').textContent = PAID_MAX_PER_WALLET;
     loadWalletLimits();
