@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Talvio Generator — 10,000 Black Dot Robots</title>
-<meta name="description" content="Talvio Generator: 10,000 Black Dot robot NFTs on BNB Chain. First 2 free per wallet, then 0.002 BNB per mint, max 20 per wallet.">
+<meta name="description" id="metaDesc" content="Talvio Generator: 10,000 Black Dot robot NFTs on BNB Chain. First 2 free per wallet, then 0.002 BNB per mint, max 20 per wallet.">
 <link rel="icon" href="logo-talvio-generator.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@ body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
 a{color:inherit;text-decoration:none}
 .mono{font-family:'IBM Plex Mono',monospace}
 .wrap{max-width:1180px;margin:0 auto;padding:0 22px;position:relative;z-index:1}
-/* ===== Header: logo + nama di kiri atas ===== */
+/* ===== Header: logo + site name top-left ===== */
 header{position:sticky;top:0;z-index:50;background:rgba(5,5,8,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
 .hbar{display:flex;align-items:center;justify-content:space-between;height:72px;max-width:1180px;margin:0 auto;padding:0 22px}
 .brand{display:flex;align-items:center;gap:12px}
@@ -34,6 +34,10 @@ nav a:hover{color:var(--text)}
 .btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
 .btn.ghost:hover{border-color:var(--gold);box-shadow:none}
 .btn.cyan{background:var(--cyan)}
+.hright{display:flex;align-items:center;gap:12px}
+.langsw{display:flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.langsw button{background:transparent;color:var(--muted);border:0;padding:9px 14px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;cursor:pointer}
+.langsw button.on{background:var(--gold);color:#0a0a0a;font-weight:600}
 @media(max-width:760px){nav{display:none}.brand .bname{font-size:17px}}
 /* ===== Marquee ===== */
 .marquee{border-bottom:1px solid var(--line);background:#090910;overflow:hidden;white-space:nowrap;padding:10px 0;font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:1px}
@@ -131,7 +135,7 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
 
 <header>
   <div class="hbar">
-    <!-- Logo + nama web di kiri atas -->
+    <!-- Logo + site name, top-left -->
     <a class="brand" href="#top">
       <img src="logo-talvio-generator.png" alt="Talvio Generator logo">
       <div>
@@ -140,9 +144,15 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
       </div>
     </a>
     <nav>
-      <a href="#agents">GENERATORS</a><a href="#mint">MINT</a><a href="#how">HOW IT WORKS</a><a href="#faq">FAQ</a>
+      <a href="#agents" data-i18n="navGen">GENERATORS</a><a href="#mint" data-i18n="navMint">MINT</a><a href="#how" data-i18n="navHow">HOW IT WORKS</a><a href="#faq" data-i18n="navFaq">FAQ</a>
     </nav>
-    <button class="btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+    <div class="hright">
+      <div class="langsw">
+        <button id="langEn" class="on" onclick="setLang('en')">EN</button>
+        <button id="langZh" onclick="setLang('zh')">中文</button>
+      </div>
+      <button class="btn" id="connectBtn" onclick="connectWallet()" data-i18n="connect">Connect Wallet</button>
+    </div>
   </div>
 </header>
 
@@ -152,73 +162,73 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
   <!-- ===== HERO ===== -->
   <div class="hero">
     <div>
-      <span class="kicker">● LIVE ON BNB CHAIN — BLACK DOT COLLECTION</span>
+      <span class="kicker" data-i18n="kicker">● LIVE ON BNB CHAIN — BLACK DOT COLLECTION</span>
       <h1>10,000<br><span class="outline">BLACK DOT</span><br>ROBOTS<span class="dot">.</span></h1>
-      <p class="lead">Meet the <b style="color:var(--text)">Talvio Generators</b> — realistic robot agents built around one black dot: dot eyes, a dot orb antenna, and a glowing Black Dot core. Every generator waves hello. No two dots exactly alike.</p>
+      <p class="lead" data-i18n-html="lead">Meet the <b style="color:var(--text)">Talvio Generators</b> — realistic robot agents built around one black dot: dot eyes, a dot orb antenna, and a glowing Black Dot core. Every generator waves hello. No two dots exactly alike.</p>
       <div class="cta">
-        <a class="btn" href="#mint">Mint Yours →</a>
-        <a class="btn ghost" href="#agents">Meet the Generators</a>
+        <a class="btn" href="#mint" data-i18n="ctaMint">Mint Yours →</a>
+        <a class="btn ghost" href="#agents" data-i18n="ctaMeet">Meet the Generators</a>
       </div>
       <div class="stats">
-        <div class="stat"><div class="v">10,000</div><div class="l">TOTAL SUPPLY</div></div>
-        <div class="stat"><div class="v"><em>2 FREE</em></div><div class="l">PER WALLET</div></div>
-        <div class="stat"><div class="v">0.002 <em>BNB</em></div><div class="l">PER PAID MINT</div></div>
-        <div class="stat"><div class="v">20</div><div class="l">MAX PER WALLET</div></div>
+        <div class="stat"><div class="v">10,000</div><div class="l" data-i18n="statSupply">TOTAL SUPPLY</div></div>
+        <div class="stat"><div class="v"><em>2 FREE</em></div><div class="l" data-i18n="statFree">PER WALLET</div></div>
+        <div class="stat"><div class="v">0.002 <em>BNB</em></div><div class="l" data-i18n="statPaid">PER PAID MINT</div></div>
+        <div class="stat"><div class="v">20</div><div class="l" data-i18n="statMax">MAX PER WALLET</div></div>
       </div>
     </div>
     <div class="heroart">
-      <div class="badge">★ #0001 — GENESIS DOT ★</div>
+      <div class="badge" data-i18n="badge">★ #0001 — GENESIS DOT ★</div>
       <div class="card">
         <img class="main" src="Talvio-BlackDot-0001-Realistic.webp" alt="Talvio Generator #0001 Black Dot — realistic robot">
-        <div class="cap"><div><div class="n">Generator #0001</div><div class="t">BLACK DOT · GENESIS</div></div><div class="mono" style="color:var(--muted);font-size:12px">1 / 10,000</div></div>
+        <div class="cap"><div><div class="n">Generator #0001</div><div class="t" data-i18n="capSub">BLACK DOT · GENESIS</div></div><div class="mono" style="color:var(--muted);font-size:12px">1 / 10,000</div></div>
       </div>
     </div>
   </div>
 
   <!-- ===== MEET THE GENERATORS ===== -->
   <section id="agents">
-    <h2 class="stitle">MEET THE <span>GENERATORS</span></h2>
-    <p class="ssub">Four base generators, each built around the Black Dot in its own style. Backgrounds, shells, auras and dot cores mix across the 10,000 supply — no two generators exactly alike.</p>
+    <h2 class="stitle" data-i18n-html="agentsTitle">MEET THE <span>GENERATORS</span></h2>
+    <p class="ssub" data-i18n="agentsSub">Four base generators, each built around the Black Dot in its own style. Backgrounds, shells, auras and dot cores mix across the 10,000 supply — no two generators exactly alike.</p>
     <div class="grid4">
       <div class="acard">
         <img src="Talvio-BlackDot-0001-Realistic.webp" alt="Generator Prime">
-        <div class="b"><h3>PRIME</h3><p>The realistic genesis unit. Camera-dot eyes, orb antenna, gold-dot core. First to generate, first to wave.</p><span class="pill">~30% OF SUPPLY</span></div>
+        <div class="b"><h3>PRIME</h3><p data-i18n="cardPrime">The realistic genesis unit. Camera-dot eyes, orb antenna, gold-dot core. First to generate, first to wave.</p><span class="pill" data-i18n="pill30">~30% OF SUPPLY</span></div>
       </div>
       <div class="acard">
         <img class="f-pixel" src="Talvio-BlackDot-0001.png" alt="Pixel Dot">
-        <div class="b"><h3>PIXEL DOT</h3><p>The original pixel form. Pure 64×64 Black Dot energy — the blueprint every generator is rendered from.</p><span class="pill">~28% OF SUPPLY</span></div>
+        <div class="b"><h3>PIXEL DOT</h3><p data-i18n="cardPixel">The original pixel form. Pure 64×64 Black Dot energy — the blueprint every generator is rendered from.</p><span class="pill" data-i18n="pill28">~28% OF SUPPLY</span></div>
       </div>
       <div class="acard">
         <img class="f-gold" src="Talvio-BlackDot-0001-Realistic.webp" alt="Aurum Dot">
-        <div class="b"><h3>AURUM DOT</h3><p>Gilded generator class. Only a fraction of the supply generates in solid gold.</p><span class="pill">~15% OF SUPPLY</span></div>
+        <div class="b"><h3>AURUM DOT</h3><p data-i18n="cardAurum">Gilded generator class. Only a fraction of the supply generates in solid gold.</p><span class="pill" data-i18n="pill15">~15% OF SUPPLY</span></div>
       </div>
       <div class="acard">
         <img class="f-stealth" src="Talvio-BlackDot-0001-Realistic.webp" alt="Stealth Dot">
-        <div class="b"><h3>STEALTH DOT</h3><p>Dark-shell night unit. Runs silent, dots barely visible — until the core lights up.</p><span class="pill">~27% OF SUPPLY</span></div>
+        <div class="b"><h3>STEALTH DOT</h3><p data-i18n="cardStealth">Dark-shell night unit. Runs silent, dots barely visible — until the core lights up.</p><span class="pill" data-i18n="pill27">~27% OF SUPPLY</span></div>
       </div>
     </div>
   </section>
 
   <!-- ===== MINT ===== -->
   <section id="mint">
-    <h2 class="stitle">MINT YOUR <span>GENERATORS</span></h2>
-    <p class="ssub">Two tiers, zero complications. Claim your free pair first — then stack up to 20 paid mints per wallet.</p>
+    <h2 class="stitle" data-i18n-html="mintTitle">MINT YOUR <span>GENERATORS</span></h2>
+    <p class="ssub" data-i18n="mintSub">Two tiers, zero complications. Claim your free pair first — then stack up to 20 paid mints per wallet.</p>
     <div class="mintbox">
       <div class="progress"><i id="mintBar"></i></div>
-      <div class="prow"><span><b id="mintedCount">20</b> / 10,000 MINTED (<span id="mintedPct">0.2</span>%)</span><span>LIVE ON BNB CHAIN · <b id="leftCount">9,980</b> LEFT</span></div>
+      <div class="prow"><span><b id="mintedCount">20</b> / 10,000 <span data-i18n="mintedWord">MINTED</span> (<span id="mintedPct">0.2</span>%)</span><span><span data-i18n="liveWord">LIVE ON BNB CHAIN</span> · <b id="leftCount">9,980</b> <span data-i18n="leftWord">LEFT</span></span></div>
 
       <div class="tiers">
         <div class="tier hot">
-          <div class="tag">TIER 1</div><h3>FREE MINT</h3>
+          <div class="tag" data-i18n="tier1">TIER 1</div><h3 data-i18n="freeMint">FREE MINT</h3>
           <div class="price">0 BNB</div>
-          <p>Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.</p>
-          <div class="left">YOUR FREE LEFT: <b id="freeLeft" style="color:var(--text)">—</b></div>
+          <p data-i18n="freeDesc">Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.</p>
+          <div class="left"><span data-i18n="freeLeftLabel">YOUR FREE LEFT:</span> <b id="freeLeft" style="color:var(--text)">—</b></div>
         </div>
         <div class="tier">
-          <div class="tag">TIER 2</div><h3>PAID MINT</h3>
+          <div class="tag" data-i18n="tier2">TIER 2</div><h3 data-i18n="paidMint">PAID MINT</h3>
           <div class="price">0.002 BNB</div>
-          <p>Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.</p>
-          <div class="left">YOUR PAID LEFT: <b id="paidLeft" style="color:var(--text)">—</b></div>
+          <p data-i18n="paidDesc">Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.</p>
+          <div class="left"><span data-i18n="paidLeftLabel">YOUR PAID LEFT:</span> <b id="paidLeft" style="color:var(--text)">—</b></div>
         </div>
       </div>
 
@@ -228,19 +238,19 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
           <input id="qty" type="number" value="1" min="1" max="22" onchange="syncMint()">
           <button onclick="stepQty(1)" aria-label="plus">+</button>
         </div>
-        <div class="total">TOTAL: <b id="totalPrice">0.002 BNB</b> <span style="color:var(--muted)" id="totalNote">(2 free + 0 paid)</span></div>
-        <button class="btn cyan" id="mintBtn" onclick="mintNow()">Mint Now</button>
+        <div class="total"><span data-i18n="totalLabel">TOTAL:</span> <b id="totalPrice">0.002 BNB</b> <span style="color:var(--muted)" id="totalNote">(2 free + 0 paid)</span></div>
+        <button class="btn cyan" id="mintBtn" onclick="mintNow()" data-i18n="mintNow">Mint Now</button>
       </div>
 
-      <div class="notice">■ CONTRACT BELUM DI-DEPLOY ■ Halaman mint ini sudah siap penuh — isi alamat kontrak Talvio Generator di variabel <b>CONTRACT_ADDRESS</b> pada script di bawah file ini, dan tombol mint akan langsung aktif membaca BNB Chain.</div>
+      <div class="notice" data-i18n-html="notice">■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.</div>
 
       <div class="agentbox">
-        <h3>MINT WITH AN AGENT</h3>
-        <p>No browser wallet? No problem. Set how many above, copy the prompt, and send it to an AI agent whose wallet holds a Binance Agent ID — it mints straight from its own wallet. The command runs preview first, so nothing executes without confirmation.</p>
+        <h3 data-i18n="agentTitle">MINT WITH AN AGENT</h3>
+        <p data-i18n="agentDesc">No browser wallet? No problem. Set how many above, copy the prompt, and send it to an AI agent whose wallet holds a Binance Agent ID — it mints straight from its own wallet. The command runs preview first, so nothing executes without confirmation.</p>
         <div class="promptbox" id="agentPrompt"></div>
         <div class="copyrow">
-          <button class="btn ghost" onclick="copyPrompt()">Copy Prompt</button>
-          <span class="copied" id="copiedMsg">✓ Prompt copied — send it to your agent</span>
+          <button class="btn ghost" onclick="copyPrompt()" data-i18n="copyBtn">Copy Prompt</button>
+          <span class="copied" id="copiedMsg" data-i18n="copiedMsg">✓ Prompt copied — send it to your agent</span>
         </div>
       </div>
     </div>
@@ -248,24 +258,24 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
 
   <!-- ===== HOW IT WORKS ===== -->
   <section id="how">
-    <h2 class="stitle">HOW IT <span>WORKS</span></h2>
-    <p class="ssub">Same simple flow as the classic agent mints — three steps and your squad is waving.</p>
+    <h2 class="stitle" data-i18n-html="howTitle">HOW IT <span>WORKS</span></h2>
+    <p class="ssub" data-i18n="howSub">Same simple flow as the classic agent mints — three steps and your squad is waving.</p>
     <div class="steps">
-      <div class="step"><div class="num">01</div><h3>CONNECT</h3><p>Link your browser wallet, or mint through a Binance agent wallet with a command from chat.</p></div>
-      <div class="step"><div class="num">02</div><h3>CLAIM FREE ×2</h3><p>Grab your two free generators. Gas only — the dots insist.</p></div>
-      <div class="step"><div class="num">03</div><h3>STACK MORE</h3><p>Up to 20 paid mints per wallet at 0.002 BNB. Build your Black Dot squad.</p></div>
+      <div class="step"><div class="num">01</div><h3 data-i18n="step1T">CONNECT</h3><p data-i18n="step1P">Link your browser wallet, or mint through a Binance agent wallet with a command from chat.</p></div>
+      <div class="step"><div class="num">02</div><h3 data-i18n="step2T">CLAIM FREE ×2</h3><p data-i18n="step2P">Grab your two free generators. Gas only — the dots insist.</p></div>
+      <div class="step"><div class="num">03</div><h3 data-i18n="step3T">STACK MORE</h3><p data-i18n="step3P">Up to 20 paid mints per wallet at 0.002 BNB. Build your Black Dot squad.</p></div>
     </div>
   </section>
 
   <!-- ===== FAQ ===== -->
   <section id="faq">
     <h2 class="stitle">FAQ</h2>
-    <p class="ssub">Everything about the dots, in one place.</p>
-    <details open><summary>What is Talvio Generator?</summary><p>10,000 Black Dot robot NFTs on BNB Chain. Four generators — Prime, Pixel Dot, Stealth Dot and Aurum Dot — each waving hello, with mixed backgrounds, shells and dot cores across the supply.</p></details>
-    <details><summary>How much does it cost?</summary><p>Your first 2 NFTs per wallet are free (you only pay network gas). After that, 0.002 BNB per mint, max 20 paid mints per wallet.</p></details>
-    <details><summary>When does minting open?</summary><p>Mint opens the moment the Talvio Generator contract is deployed — this page reads the contract live and lights up automatically.</p></details>
-    <details><summary>Can I mint with a Binance agent wallet?</summary><p>Yes. Connect with your browser wallet for one-click minting, or copy the agent prompt in the mint section and send it to an AI agent with a Binance Agent ID wallet.</p></details>
-    <details><summary>Are there royalties or taxes?</summary><p>No. The contract is a plain ERC-721: no mint tax, no transfer fee, no blacklist. What you mint is yours.</p></details>
+    <p class="ssub" data-i18n="faqSub">Everything about the dots, in one place.</p>
+    <details open><summary data-i18n="q1">What is Talvio Generator?</summary><p data-i18n="a1">10,000 Black Dot robot NFTs on BNB Chain. Four generators — Prime, Pixel Dot, Stealth Dot and Aurum Dot — each waving hello, with mixed backgrounds, shells and dot cores across the supply.</p></details>
+    <details><summary data-i18n="q2">How much does it cost?</summary><p data-i18n="a2">Your first 2 NFTs per wallet are free (you only pay network gas). After that, 0.002 BNB per mint, max 20 paid mints per wallet.</p></details>
+    <details><summary data-i18n="q3">When does minting open?</summary><p data-i18n="a3">Mint opens the moment the Talvio Generator contract is deployed — this page reads the contract live and lights up automatically.</p></details>
+    <details><summary data-i18n="q4">Can I mint with a Binance agent wallet?</summary><p data-i18n="a4">Yes. Connect with your browser wallet for one-click minting, or copy the agent prompt in the mint section and send it to an AI agent with a Binance Agent ID wallet.</p></details>
+    <details><summary data-i18n="q5">Are there royalties or taxes?</summary><p data-i18n="a5">No. The contract is a plain ERC-721: no mint tax, no transfer fee, no blacklist. What you mint is yours.</p></details>
   </section>
 </main>
 
@@ -275,27 +285,154 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
       <img src="logo-talvio-generator.png" alt="Talvio Generator logo" style="width:38px;height:38px">
       <div><div class="bname" style="font-size:17px">TALVIO <span>GENERATOR</span></div><div class="bsub">● BLACK DOT ●</div></div>
     </a>
-    <div class="muted">© 2026 TALVIO GENERATOR · 10,000 BLACK DOT ROBOTS · BNB CHAIN</div>
-    <div class="muted">Built by <a href="https://x.com/AgenticTalvio" target="_blank" rel="noopener" style="color:var(--acc,#7ee787);text-decoration:none;font-weight:600">@AgenticTalvio</a></div>
+    <div class="muted" data-i18n="footLine">© 2026 TALVIO GENERATOR · 10,000 BLACK DOT ROBOTS · BNB CHAIN</div>
+    <div class="muted" data-i18n-html="builtBy">Built by <a href="https://x.com/AgenticTalvio" target="_blank" rel="noopener" style="color:#7ee787;text-decoration:none;font-weight:600">@AgenticTalvio</a></div>
   </div>
 </footer>
 
 <script>
-/* ====== PENGATURAN MINT — edit di sini setelah kontrak deploy ====== */
-const CONTRACT_ADDRESS = "";            // <-- isi alamat kontrak Talvio Generator
+/* ====== MINT SETTINGS — edit here after the contract is deployed ====== */
+const CONTRACT_ADDRESS = "";            // <-- put the Talvio Generator contract address here
 const TOTAL_SUPPLY = 10000;
-const MINTED_DEMO  = 20;                // angka contoh sebelum kontrak terbaca live
+const MINTED_DEMO  = 20;                // demo figure until the contract reads live
 const FREE_PER_WALLET = 2;
 const PAID_PRICE_BNB  = 0.002;
 const PAID_MAX_PER_WALLET = 20;
 
 let wallet = null;
 
-/* Marquee */
-(function(){
-  const item = " ★ 10,000 SUPPLY ★ FIRST <b>2 FREE</b> PER WALLET ★ <b>0.002 BNB</b> PER MINT ★ MAX <b>20</b> PER WALLET ★ BLACK DOT ★ SAY HELLO";
-  document.getElementById('marqueeTrack').innerHTML = item.repeat(4);
-})();
+/* ====== i18n — English / 中文 only ====== */
+const I18N = {
+en:{
+  docTitle:"Talvio Generator — 10,000 Black Dot Robots",
+  metaDesc:"Talvio Generator: 10,000 Black Dot robot NFTs on BNB Chain. First 2 free per wallet, then 0.002 BNB per mint, max 20 per wallet.",
+  navGen:"GENERATORS", navMint:"MINT", navHow:"HOW IT WORKS", navFaq:"FAQ",
+  connect:"Connect Wallet",
+  kicker:"● LIVE ON BNB CHAIN — BLACK DOT COLLECTION",
+  lead:"Meet the <b style=\"color:var(--text)\">Talvio Generators</b> — realistic robot agents built around one black dot: dot eyes, a dot orb antenna, and a glowing Black Dot core. Every generator waves hello. No two dots exactly alike.",
+  ctaMint:"Mint Yours →", ctaMeet:"Meet the Generators",
+  statSupply:"TOTAL SUPPLY", statFree:"PER WALLET", statPaid:"PER PAID MINT", statMax:"MAX PER WALLET",
+  badge:"★ #0001 — GENESIS DOT ★", capSub:"BLACK DOT · GENESIS",
+  agentsTitle:"MEET THE <span>GENERATORS</span>",
+  agentsSub:"Four base generators, each built around the Black Dot in its own style. Backgrounds, shells, auras and dot cores mix across the 10,000 supply — no two generators exactly alike.",
+  cardPrime:"The realistic genesis unit. Camera-dot eyes, orb antenna, gold-dot core. First to generate, first to wave.",
+  cardPixel:"The original pixel form. Pure 64×64 Black Dot energy — the blueprint every generator is rendered from.",
+  cardAurum:"Gilded generator class. Only a fraction of the supply generates in solid gold.",
+  cardStealth:"Dark-shell night unit. Runs silent, dots barely visible — until the core lights up.",
+  pill30:"~30% OF SUPPLY", pill28:"~28% OF SUPPLY", pill15:"~15% OF SUPPLY", pill27:"~27% OF SUPPLY",
+  mintTitle:"MINT YOUR <span>GENERATORS</span>",
+  mintSub:"Two tiers, zero complications. Claim your free pair first — then stack up to 20 paid mints per wallet.",
+  mintedWord:"MINTED", liveWord:"LIVE ON BNB CHAIN", leftWord:"LEFT",
+  tier1:"TIER 1", tier2:"TIER 2", freeMint:"FREE MINT", paidMint:"PAID MINT",
+  freeDesc:"Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.",
+  paidDesc:"Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.",
+  freeLeftLabel:"YOUR FREE LEFT:", paidLeftLabel:"YOUR PAID LEFT:",
+  totalLabel:"TOTAL:", mintNow:"Mint Now",
+  notice:"■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.",
+  agentTitle:"MINT WITH AN AGENT",
+  agentDesc:"No browser wallet? No problem. Set how many above, copy the prompt, and send it to an AI agent whose wallet holds a Binance Agent ID — it mints straight from its own wallet. The command runs preview first, so nothing executes without confirmation.",
+  copyBtn:"Copy Prompt", copiedMsg:"✓ Prompt copied — send it to your agent",
+  howTitle:"HOW IT <span>WORKS</span>",
+  howSub:"Same simple flow as the classic agent mints — three steps and your squad is waving.",
+  step1T:"CONNECT", step1P:"Link your browser wallet, or mint through a Binance agent wallet with a command from chat.",
+  step2T:"CLAIM FREE ×2", step2P:"Grab your two free generators. Gas only — the dots insist.",
+  step3T:"STACK MORE", step3P:"Up to 20 paid mints per wallet at 0.002 BNB. Build your Black Dot squad.",
+  faqSub:"Everything about the dots, in one place.",
+  q1:"What is Talvio Generator?", a1:"10,000 Black Dot robot NFTs on BNB Chain. Four generators — Prime, Pixel Dot, Stealth Dot and Aurum Dot — each waving hello, with mixed backgrounds, shells and dot cores across the supply.",
+  q2:"How much does it cost?", a2:"Your first 2 NFTs per wallet are free (you only pay network gas). After that, 0.002 BNB per mint, max 20 paid mints per wallet.",
+  q3:"When does minting open?", a3:"Mint opens the moment the Talvio Generator contract is deployed — this page reads the contract live and lights up automatically.",
+  q4:"Can I mint with a Binance agent wallet?", a4:"Yes. Connect with your browser wallet for one-click minting, or copy the agent prompt in the mint section and send it to an AI agent with a Binance Agent ID wallet.",
+  q5:"Are there royalties or taxes?", a5:"No. The contract is a plain ERC-721: no mint tax, no transfer fee, no blacklist. What you mint is yours.",
+  footLine:"© 2026 TALVIO GENERATOR · 10,000 BLACK DOT ROBOTS · BNB CHAIN",
+  builtBy:"Built by <a href=\"https://x.com/AgenticTalvio\" target=\"_blank\" rel=\"noopener\" style=\"color:#7ee787;text-decoration:none;font-weight:600\">@AgenticTalvio</a>",
+  marquee:" ★ 10,000 SUPPLY ★ FIRST <b>2 FREE</b> PER WALLET ★ <b>0.002 BNB</b> PER MINT ★ MAX <b>20</b> PER WALLET ★ BLACK DOT ★ SAY HELLO",
+  totalNote:(f,p)=>`(${f} free + ${p} paid)`,
+  noWallet:"No browser wallet found. Install MetaMask / Binance Wallet, or use Mint with an Agent below.",
+  notDeployed:"The Talvio Generator contract is not deployed yet. Fill in CONTRACT_ADDRESS in this file after deployment — this button will then send the mint transaction to your wallet.",
+  mintReady:(q,f,p,t)=>`Ready to mint ${q} Talvio Generator (${f} free + ${p} paid = ${t} BNB). Connect this page to contract ${CONTRACT_ADDRESS} for on-chain execution.`,
+  prompt:(q,f,p,t)=>`Mint ${q} Talvio Generator NFT(s) for me on BNB Chain.
+- Collection: Talvio Generator (Black Dot), total supply 10,000
+- Contract: ${CONTRACT_ADDRESS || '(contract address — ask me / check talvio page)'}
+- Use my free mint first (${f} free), then paid mint (${p} x 0.002 BNB = ${t} BNB total)
+- Run a preview first and show me the total cost. Do NOT execute until I confirm.`
+},
+zh:{
+  docTitle:"Talvio Generator — 10,000 个黑点机器人",
+  metaDesc:"Talvio Generator：BNB 链上的 10,000 个黑点机器人 NFT。每个钱包首 2 个免费，之后每次铸造 0.002 BNB，每钱包上限 20 个。",
+  navGen:"生成器", navMint:"铸造", navHow:"运作方式", navFaq:"常见问题",
+  connect:"连接钱包",
+  kicker:"● 已上线 BNB 链 — 黑点系列",
+  lead:"认识一下 <b style=\"color:var(--text)\">Talvio 生成器</b> —— 围绕一个黑点打造的写实机器人：圆点眼睛、圆点球形天线，以及发光的黑点核心。每个生成器都会挥手打招呼。没有两个圆点完全相同。",
+  ctaMint:"立即铸造 →", ctaMeet:"认识生成器",
+  statSupply:"总供应量", statFree:"每个钱包", statPaid:"每次付费铸造", statMax:"每钱包上限",
+  badge:"★ #0001 — 创世圆点 ★", capSub:"黑点 · 创世",
+  agentsTitle:"认识<span>生成器</span>",
+  agentsSub:"四款基础生成器，各自以独特风格围绕黑点打造。背景、外壳、光环与圆点核心在 10,000 个供应中自由组合 —— 没有两个生成器完全相同。",
+  cardPrime:"写实风格的创世机型。相机圆点眼睛、球形天线、金色圆点核心。第一个生成，第一个挥手。",
+  cardPixel:"最初的像素形态。纯粹的 64×64 黑点能量 —— 所有生成器都源自这张蓝图。",
+  cardAurum:"鎏金生成器等级。只有一小部分供应会生成为纯金形态。",
+  cardStealth:"暗壳夜间机型。静默运行，圆点几乎不可见 —— 直到核心亮起。",
+  pill30:"约占总量 30%", pill28:"约占总量 28%", pill15:"约占总量 15%", pill27:"约占总量 27%",
+  mintTitle:"铸造你的<span>生成器</span>",
+  mintSub:"两个等级，零门槛。先领取你的一对免费铸造 —— 然后每个钱包最多再付费铸造 20 个。",
+  mintedWord:"已铸造", liveWord:"已上线 BNB 链", leftWord:"剩余",
+  tier1:"等级 1", tier2:"等级 2", freeMint:"免费铸造", paidMint:"付费铸造",
+  freeDesc:"你的前 2 个生成器免费 —— 只需支付 Gas 费。每个钱包限领一次。",
+  paidDesc:"继续生成。每个钱包最多付费铸造 20 个，每个固定 0.002 BNB。",
+  freeLeftLabel:"你的免费剩余：", paidLeftLabel:"你的付费剩余：",
+  totalLabel:"总计：", mintNow:"立即铸造",
+  notice:"■ 合约尚未部署 ■ 本铸造页面已完全就绪 —— 将 Talvio Generator 合约地址填入本文件底部脚本中的 <b>CONTRACT_ADDRESS</b> 变量，铸造按钮即会在 BNB 链上正式启用。",
+  agentTitle:"通过智能体铸造",
+  agentDesc:"没有浏览器钱包？没问题。在上方设置数量，复制提示词，发送给持有 Binance Agent ID 钱包的 AI 智能体 —— 它会直接从自己的钱包铸造。命令会先运行预览，未经确认不会执行。",
+  copyBtn:"复制提示词", copiedMsg:"✓ 提示词已复制 —— 发送给你的智能体",
+  howTitle:"运作<span>方式</span>",
+  howSub:"与经典智能体铸造相同的简单流程 —— 三步，你的小队就会挥手了。",
+  step1T:"连接", step1P:"连接你的浏览器钱包，或通过聊天发送命令，用 Binance 智能体钱包铸造。",
+  step2T:"领取免费 ×2", step2P:"领取你的两个免费生成器。只需 Gas 费 —— 圆点们坚持如此。",
+  step3T:"继续叠加", step3P:"每个钱包最多付费铸造 20 个，每个 0.002 BNB。组建你的黑点小队。",
+  faqSub:"关于圆点的一切，都在这里。",
+  q1:"什么是 Talvio Generator？", a1:"BNB 链上的 10,000 个黑点机器人 NFT。四款生成器 —— Prime、Pixel Dot、Stealth Dot 和 Aurum Dot —— 每个都会挥手打招呼，背景、外壳与圆点核心在整个供应中混合搭配。",
+  q2:"费用是多少？", a2:"每个钱包的前 2 个 NFT 免费（只需支付网络 Gas 费）。之后每次铸造 0.002 BNB，每个钱包最多付费铸造 20 个。",
+  q3:"铸造何时开始？", a3:"Talvio Generator 合约部署完成的那一刻即开启铸造 —— 本页面会实时读取合约并自动启用。",
+  q4:"可以用 Binance 智能体钱包铸造吗？", a4:"可以。用浏览器钱包连接即可一键铸造，或复制铸造区的智能体提示词，发送给持有 Binance Agent ID 钱包的 AI 智能体。",
+  q5:"有版税或税费吗？", a5:"没有。合约是标准的 ERC-721：无铸造税、无转账费、无黑名单。你铸造的，完全属于你。",
+  footLine:"© 2026 TALVIO GENERATOR · 10,000 个黑点机器人 · BNB 链",
+  builtBy:"由 <a href=\"https://x.com/AgenticTalvio\" target=\"_blank\" rel=\"noopener\" style=\"color:#7ee787;text-decoration:none;font-weight:600\">@AgenticTalvio</a> 构建",
+  marquee:" ★ 总量 10,000 ★ 每钱包首 <b>2 个免费</b> ★ 每次铸造 <b>0.002 BNB</b> ★ 每钱包上限 <b>20</b> 个 ★ 黑点 ★ 打个招呼",
+  totalNote:(f,p)=>`（${f} 个免费 + ${p} 个付费）`,
+  noWallet:"未找到浏览器钱包。请安装 MetaMask / Binance Wallet，或使用下方的智能体铸造。",
+  notDeployed:"Talvio Generator 合约尚未部署。部署后将合约地址填入本文件的 CONTRACT_ADDRESS —— 此按钮随后会把铸造交易发送到你的钱包。",
+  mintReady:(q,f,p,t)=>`准备铸造 ${q} 个 Talvio Generator（${f} 个免费 + ${p} 个付费 = ${t} BNB）。将本页面连接到合约 ${CONTRACT_ADDRESS} 即可在链上执行。`,
+  prompt:(q,f,p,t)=>`请在 BNB 链上为我铸造 ${q} 个 Talvio Generator NFT。
+- 系列：Talvio Generator（黑点），总供应量 10,000
+- 合约：${CONTRACT_ADDRESS || '（合约地址 —— 向我询问 / 查看 Talvio 页面）'}
+- 先使用我的免费铸造（${f} 个免费），然后付费铸造（${p} 个 × 0.002 BNB = 总计 ${t} BNB）
+- 先运行预览并向我展示总费用。在我确认之前不要执行。`
+}};
+
+let LANG = localStorage.getItem('talvio-lang') || 'en';
+if (!I18N[LANG]) LANG = 'en';
+
+function setLang(l){
+  if (!I18N[l]) return;
+  LANG = l;
+  localStorage.setItem('talvio-lang', l);
+  const d = I18N[l];
+  document.documentElement.lang = (l === 'zh') ? 'zh-CN' : 'en';
+  document.title = d.docTitle;
+  document.getElementById('metaDesc').setAttribute('content', d.metaDesc);
+  document.querySelectorAll('[data-i18n]').forEach(el=>{ const k = el.getAttribute('data-i18n'); if (d[k] != null) el.textContent = d[k]; });
+  document.querySelectorAll('[data-i18n-html]').forEach(el=>{ const k = el.getAttribute('data-i18n-html'); if (d[k] != null) el.innerHTML = d[k]; });
+  document.getElementById('langEn').classList.toggle('on', l === 'en');
+  document.getElementById('langZh').classList.toggle('on', l === 'zh');
+  if (!wallet) document.getElementById('connectBtn').textContent = d.connect;
+  renderMarquee();
+  syncMint();
+}
+
+function renderMarquee(){
+  document.getElementById('marqueeTrack').innerHTML = I18N[LANG].marquee.repeat(4);
+}
 
 /* Progress */
 (function(){
@@ -321,20 +458,14 @@ function pricing(q){
   return { free, paid, total: (paid * PAID_PRICE_BNB).toFixed(3) };
 }
 function syncMint(){
-  const q = clampQty(), p = pricing(q);
+  const q = clampQty(), p = pricing(q), d = I18N[LANG];
   document.getElementById('totalPrice').textContent = p.total + ' BNB';
-  document.getElementById('totalNote').textContent = `(${p.free} free + ${p.paid} paid)`;
-  document.getElementById('agentPrompt').textContent =
-`Mint ${q} Talvio Generator NFT(s) for me on BNB Chain.
-- Collection: Talvio Generator (Black Dot), total supply 10,000
-- Contract: ${CONTRACT_ADDRESS || '(contract address — ask me / check talvio page)'}
-- Use my free mint first (${p.free} free), then paid mint (${p.paid} x 0.002 BNB = ${p.total} BNB total)
-- Run a preview first and show me the total cost. Do NOT execute until I confirm.`;
+  document.getElementById('totalNote').textContent = d.totalNote(p.free, p.paid);
+  document.getElementById('agentPrompt').textContent = d.prompt(q, p.free, p.paid, p.total);
 }
-syncMint();
 
 async function connectWallet(){
-  if (!window.ethereum){ alert('No browser wallet found. Install MetaMask / Binance Wallet, or use Mint with an Agent below.'); return; }
+  if (!window.ethereum){ alert(I18N[LANG].noWallet); return; }
   try{
     const accs = await window.ethereum.request({ method:'eth_requestAccounts' });
     wallet = accs[0];
@@ -345,13 +476,11 @@ async function connectWallet(){
 }
 
 function mintNow(){
-  if (!CONTRACT_ADDRESS){
-    alert('Contract Talvio Generator belum di-deploy. Isi CONTRACT_ADDRESS di file ini setelah deploy — setelah itu tombol ini mengirim transaksi mint ke wallet Anda.');
-    return;
-  }
+  const d = I18N[LANG];
+  if (!CONTRACT_ADDRESS){ alert(d.notDeployed); return; }
   if (!wallet){ connectWallet(); return; }
   const q = clampQty(), p = pricing(q);
-  alert(`Siap mint ${q} Talvio Generator (${p.free} free + ${p.paid} paid = ${p.total} BNB). Hubungkan halaman ini ke kontrak ${CONTRACT_ADDRESS} untuk eksekusi on-chain.`);
+  alert(d.mintReady(q, p.free, p.paid, p.total));
 }
 
 function copyPrompt(){
@@ -361,6 +490,8 @@ function copyPrompt(){
     setTimeout(()=>m.style.display='none', 2600);
   });
 }
+
+setLang(LANG);
 </script>
 </body>
 </html>
