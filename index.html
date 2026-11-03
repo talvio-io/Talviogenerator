@@ -23,6 +23,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.4/dist/ethers.umd.min.js"></script>
+<script>if(!window.ethers){document.write('<script src="https://unpkg.com/ethers@6.13.4/dist/ethers.umd.min.js"><\/script>');}</script>
 <style>
 :root{--bg:#050508;--panel:#0d0d13;--panel2:#12121b;--line:#262633;--text:#f5f6fa;--muted:#9a9cae;--gold:#ffc400;--cyan:#00e5ff;--pink:#ff96aa}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -547,7 +548,28 @@ async function connectWallet(){
     document.getElementById('freeLeft').textContent = FREE_PER_WALLET;
     document.getElementById('paidLeft').textContent = PAID_MAX_PER_WALLET;
     loadWalletLimits();
+    watchWalletChanges();
   }catch(e){ /* user rejected */ }
+}
+
+let walletWatchOn = false;
+function watchWalletChanges(){
+  if (walletWatchOn || !window.ethereum || !window.ethereum.on) return;
+  walletWatchOn = true;
+  window.ethereum.on('accountsChanged', (accs)=>{
+    if (!accs || !accs.length){
+      wallet = null; walletFreeLeft = null; walletPaidLeft = null;
+      document.getElementById('connectBtn').textContent = I18N[LANG].connect;
+      document.getElementById('freeLeft').textContent = '—';
+      document.getElementById('paidLeft').textContent = '—';
+      syncMint();
+    } else {
+      wallet = accs[0];
+      document.getElementById('connectBtn').textContent = wallet.slice(0,6) + '…' + wallet.slice(-4);
+      loadWalletLimits();
+    }
+  });
+  window.ethereum.on('chainChanged', ()=>{ refreshChain(); if (wallet) loadWalletLimits(); });
 }
 
 async function mintNow(){
@@ -558,7 +580,13 @@ async function mintNow(){
   try{
     const chainId = await window.ethereum.request({ method:'eth_chainId' });
     if (parseInt(chainId, 16) !== 56){
-      await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId:'0x38' }] });
+      try{
+        await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{ chainId:'0x38' }] });
+      }catch(swErr){
+        if (swErr && swErr.code === 4902){
+          await window.ethereum.request({ method:'wallet_addEthereumChain', params:[{ chainId:'0x38', chainName:'BNB Smart Chain', nativeCurrency:{ name:'BNB', symbol:'BNB', decimals:18 }, rpcUrls:['https://bsc-dataseed.binance.org/'], blockExplorerUrls:['https://bscscan.com'] }] });
+        } else { throw swErr; }
+      }
     }
     const bp = new ethers.BrowserProvider(window.ethereum);
     const signer = await bp.getSigner();
@@ -578,10 +606,21 @@ async function mintNow(){
 
 function copyPrompt(){
   const t = document.getElementById('agentPrompt').textContent;
-  navigator.clipboard.writeText(t).then(()=>{
+  const done = ()=>{
     const m = document.getElementById('copiedMsg'); m.style.display='inline';
     setTimeout(()=>m.style.display='none', 2600);
-  });
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t).then(done).catch(()=>fallbackCopy(t, done));
+  } else { fallbackCopy(t, done); }
+}
+function fallbackCopy(t, done){
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = t; ta.style.position='fixed'; ta.style.opacity='0';
+    document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); done();
+  }catch(e){ /* clipboard unavailable in this browser */ }
 }
 
 setLang(LANG);
