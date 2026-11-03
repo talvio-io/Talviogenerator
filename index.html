@@ -240,13 +240,13 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
           <div class="tag" data-i18n="tier1">TIER 1</div><h3 data-i18n="freeMint">FREE MINT</h3>
           <div class="price">0 BNB</div>
           <p data-i18n="freeDesc">Your first 2 generators are on the house — you only pay gas. One claim per wallet, ever.</p>
-          <div class="left"><span data-i18n="freeLeftLabel">YOUR FREE LEFT:</span> <b id="freeLeft" style="color:var(--text)">—</b></div>
+          <div class="left"><span data-i18n="freeLeftLabel">YOUR FREE LEFT:</span> <b id="freeLeft" style="color:var(--text)">2</b></div>
         </div>
         <div class="tier" id="tierPaid" onclick="pickTier('paid')">
           <div class="tag" data-i18n="tier2">TIER 2</div><h3 data-i18n="paidMint">PAID MINT</h3>
           <div class="price">0.002 BNB</div>
           <p data-i18n="paidDesc">Keep generating. Up to 20 paid mints per wallet at a flat 0.002 BNB each.</p>
-          <div class="left"><span data-i18n="paidLeftLabel">YOUR PAID LEFT:</span> <b id="paidLeft" style="color:var(--text)">—</b></div>
+          <div class="left"><span data-i18n="paidLeftLabel">YOUR PAID LEFT:</span> <b id="paidLeft" style="color:var(--text)">20</b></div>
         </div>
       </div>
 
@@ -584,8 +584,8 @@ function watchWalletChanges(){
     if (!accs || !accs.length){
       wallet = null; walletFreeLeft = null; walletPaidLeft = null;
       document.getElementById('connectBtn').textContent = I18N[LANG].connect;
-      document.getElementById('freeLeft').textContent = '—';
-      document.getElementById('paidLeft').textContent = '—';
+      document.getElementById('freeLeft').textContent = FREE_PER_WALLET;
+      document.getElementById('paidLeft').textContent = PAID_MAX_PER_WALLET;
       document.getElementById('walletBal').textContent = '—';
       syncMint();
     } else {
@@ -662,8 +662,23 @@ function fallbackCopy(t, done){
   }catch(e){ /* clipboard unavailable in this browser */ }
 }
 
+async function tryAutoConnect(){
+  if (!window.ethereum) return;
+  try{
+    const accs = await window.ethereum.request({ method:'eth_accounts' });
+    if (accs && accs.length){
+      wallet = accs[0];
+      document.getElementById('connectBtn').textContent = wallet.slice(0,6) + '…' + wallet.slice(-4);
+      walletFreeLeft = FREE_PER_WALLET; walletPaidLeft = PAID_MAX_PER_WALLET;
+      loadWalletLimits();
+      watchWalletChanges();
+    }
+  }catch(e){ /* wallet locked or unavailable — manual connect still works */ }
+}
+
 setLang(LANG);
 refreshChain();
+tryAutoConnect();
 </script>
 </body>
 </html>
