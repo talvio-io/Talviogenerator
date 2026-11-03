@@ -262,6 +262,8 @@ footer{border-top:1px solid var(--line);padding:38px 0 46px;margin-top:20px}
         <button class="btn cyan" id="mintBtn" onclick="mintNow()" data-i18n="mintNow">Mint Now</button>
       </div>
 
+      <div id="modeNote" style="color:var(--muted);font-size:13px;margin-top:12px"></div>
+
       <div class="notice" id="mintNotice" data-i18n-html="notice">■ CONTRACT NOT DEPLOYED YET ■ This mint page is fully ready — put the Talvio Generator contract address in the <b>CONTRACT_ADDRESS</b> variable in the script at the bottom of this file, and the mint button goes live on BNB Chain.</div>
 
       <div class="agentbox">
@@ -323,6 +325,7 @@ const PAID_MAX_PER_WALLET = 20;
 
 let wallet = null;
 let walletFreeLeft = null, walletPaidLeft = null; // real on-chain allowance once connected
+let mintMode = 'free'; // 'free' = free mints only · 'paid' = paid mints only
 
 /* ====== i18n — English / 中文 only ====== */
 const I18N = {
@@ -377,13 +380,22 @@ en:{
   builtBy:"Built by <a href=\"https://x.com/AgenticTalvio\" target=\"_blank\" rel=\"noopener\" style=\"color:#7ee787;text-decoration:none;font-weight:600\">@AgenticTalvio</a>",
   marquee:" ★ 10,000 SUPPLY ★ FIRST <b>2 FREE</b> PER WALLET ★ <b>0.002 BNB</b> PER MINT ★ MAX <b>20</b> PER WALLET ★ BLACK DOT ★ SAY HELLO",
   totalNote:(f,p)=>`(${f} free + ${p} paid)`,
+  totalNoteFree:(f)=>`(${f} free)`, totalNotePaid:(p)=>`(${p} paid)`,
+  modeFreeNote:"Free mode — the amount is free mints only. You only pay gas.",
+  modePaidNote:(fl)=> fl > 0 ? `Paid mode — the amount is paid mints only. Your ${fl} free mint(s) ride along in the same transaction at no extra cost.` : "Paid mode — the amount is paid mints only, 0.002 BNB each.",
   noWallet:"No browser wallet found. Open this page inside your wallet app's own browser (MetaMask / Binance Wallet / Trust Wallet → Browser tab), or use Mint with an Agent below.",
   notDeployed:"The Talvio Generator contract is not deployed yet. Fill in CONTRACT_ADDRESS in this file after deployment — this button will then send the mint transaction to your wallet.",
   mintReady:(q,f,p,t)=>`Ready to mint ${q} Talvio Generator (${f} free + ${p} paid = ${t} BNB). Connect this page to contract ${CONTRACT_ADDRESS} for on-chain execution.`,
-  prompt:(q,f,p,t)=>`Mint ${q} Talvio Generator NFT(s) for me on BNB Chain.
+  prompt:(q,f,p,t,bonus)=> p === 0
+    ? `Mint ${q} Talvio Generator NFT(s) for me on BNB Chain (free mint only).
 - Collection: Talvio Generator (Black Dot), total supply 10,000
 - Contract: ${CONTRACT_ADDRESS || '(contract address — ask me / check talvio page)'}
-- Use my free mint first (${f} free), then paid mint (${p} x 0.002 BNB = ${t} BNB total)
+- Free mint: ${f} NFT(s), 0 BNB total (gas only)
+- Run a preview first and show me the total cost. Do NOT execute until I confirm.`
+    : `Mint ${q} Talvio Generator NFT(s) for me on BNB Chain in ONE transaction.
+- Collection: Talvio Generator (Black Dot), total supply 10,000
+- Contract: ${CONTRACT_ADDRESS || '(contract address — ask me / check talvio page)'}
+- Paid mint: ${p} x 0.002 BNB = ${t} BNB total. The contract automatically includes my ${bonus} remaining free mint(s) in the same mint(${q}) call at no extra cost — do not split it into separate transactions.
 - Run a preview first and show me the total cost. Do NOT execute until I confirm.`
 },
 zh:{
@@ -437,13 +449,22 @@ zh:{
   builtBy:"由 <a href=\"https://x.com/AgenticTalvio\" target=\"_blank\" rel=\"noopener\" style=\"color:#7ee787;text-decoration:none;font-weight:600\">@AgenticTalvio</a> 构建",
   marquee:" ★ 总量 10,000 ★ 每钱包首 <b>2 个免费</b> ★ 每次铸造 <b>0.002 BNB</b> ★ 每钱包上限 <b>20</b> 个 ★ 黑点 ★ 打个招呼",
   totalNote:(f,p)=>`（${f} 个免费 + ${p} 个付费）`,
+  totalNoteFree:(f)=>`（${f} 个免费）`, totalNotePaid:(p)=>`（${p} 个付费）`,
+  modeFreeNote:"免费模式——下方数量仅为免费铸造，你只需支付燃料费。",
+  modePaidNote:(fl)=> fl > 0 ? `付费模式——下方数量仅为付费铸造。你的 ${fl} 个免费名额会在同一笔交易中一并铸造，不额外收费。` : "付费模式——下方数量仅为付费铸造，每个 0.002 BNB。",
   noWallet:"未找到浏览器钱包。请在钱包应用自带的浏览器中打开本页面（MetaMask / Binance Wallet / Trust Wallet → 浏览器标签），或使用下方的智能体铸造。",
   notDeployed:"Talvio Generator 合约尚未部署。部署后将合约地址填入本文件的 CONTRACT_ADDRESS —— 此按钮随后会把铸造交易发送到你的钱包。",
   mintReady:(q,f,p,t)=>`准备铸造 ${q} 个 Talvio Generator（${f} 个免费 + ${p} 个付费 = ${t} BNB）。将本页面连接到合约 ${CONTRACT_ADDRESS} 即可在链上执行。`,
-  prompt:(q,f,p,t)=>`请在 BNB 链上为我铸造 ${q} 个 Talvio Generator NFT。
+  prompt:(q,f,p,t,bonus)=> p === 0
+    ? `请在 BNB 链上为我铸造 ${q} 个 Talvio Generator NFT（仅免费铸造）。
 - 系列：Talvio Generator（黑点），总供应量 10,000
 - 合约：${CONTRACT_ADDRESS || '（合约地址 —— 向我询问 / 查看 Talvio 页面）'}
-- 先使用我的免费铸造（${f} 个免费），然后付费铸造（${p} 个 × 0.002 BNB = 总计 ${t} BNB）
+- 免费铸造：${f} 个，总计 0 BNB（仅燃料费）
+- 先运行预览并向我展示总费用。在我确认之前不要执行。`
+    : `请在 BNB 链上用一笔交易为我铸造 ${q} 个 Talvio Generator NFT。
+- 系列：Talvio Generator（黑点），总供应量 10,000
+- 合约：${CONTRACT_ADDRESS || '（合约地址 —— 向我询问 / 查看 Talvio 页面）'}
+- 付费铸造：${p} 个 × 0.002 BNB = 总计 ${t} BNB。合约会在同一次 mint(${q}) 调用中自动包含我剩余的 ${bonus} 个免费名额，不额外收费——不要拆成多笔交易。
 - 先运行预览并向我展示总费用。在我确认之前不要执行。`
 }};
 
@@ -513,6 +534,8 @@ async function loadWalletLimits(){
     const [fc, pm] = await readChain(c => Promise.all([c.freeClaimedOf(wallet), c.paidMintedOf(wallet)]));
     walletFreeLeft = Math.max(0, FREE_PER_WALLET - Number(fc));
     walletPaidLeft = Math.max(0, PAID_MAX_PER_WALLET - Number(pm));
+    if (walletFreeLeft === 0 && mintMode === 'free') mintMode = 'paid';
+    if (walletPaidLeft === 0 && mintMode === 'paid' && walletFreeLeft > 0) mintMode = 'free';
     document.getElementById('freeLeft').textContent = walletFreeLeft;
     document.getElementById('paidLeft').textContent = walletPaidLeft;
     syncMint();
@@ -531,33 +554,37 @@ async function fetchWalletBal(){
 function clampQty(){
   let q = parseInt(document.getElementById('qty').value || '1', 10);
   if (isNaN(q) || q < 1) q = 1;
-  const maxQ = (walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET) + (walletPaidLeft !== null ? walletPaidLeft : PAID_MAX_PER_WALLET);
-  if (q > Math.max(1, maxQ)) q = Math.max(1, maxQ);
+  const cap = mintMode === 'free'
+    ? (walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET)
+    : (walletPaidLeft !== null ? walletPaidLeft : PAID_MAX_PER_WALLET);
+  if (q > Math.max(1, cap)) q = Math.max(1, cap);
   document.getElementById('qty').value = q;
   return q;
 }
 function stepQty(d){ document.getElementById('qty').value = clampQty() + d; syncMint(); }
 
 function pricing(q){
-  const freeCap = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
-  const paidCap = walletPaidLeft !== null ? walletPaidLeft : PAID_MAX_PER_WALLET;
-  const free = Math.min(q, freeCap);
-  const paid = Math.min(q - free, paidCap);
-  return { free, paid, total: (paid * PAID_PRICE_BNB).toFixed(3) };
+  if (mintMode === 'free') return { free: q, paid: 0, total: '0.000' };
+  return { free: 0, paid: q, total: (q * PAID_PRICE_BNB).toFixed(3) };
 }
 function syncMint(){
   const q = clampQty(), p = pricing(q), d = I18N[LANG];
   document.getElementById('totalPrice').textContent = p.total + ' BNB';
-  document.getElementById('totalNote').textContent = d.totalNote(p.free, p.paid);
-  document.getElementById('agentPrompt').textContent = d.prompt(q, p.free, p.paid, p.total);
+  document.getElementById('totalNote').textContent = mintMode === 'free' ? d.totalNoteFree(p.free) : d.totalNotePaid(p.paid);
+  const freeCap = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
+  const sendQ = mintMode === 'paid' ? freeCap + q : q;
+  document.getElementById('agentPrompt').textContent = d.prompt(sendQ, p.free, p.paid, p.total, freeCap);
   const tf = document.getElementById('tierFree'), tp = document.getElementById('tierPaid');
-  if (tf && tp){ tf.classList.toggle('sel', p.paid === 0); tp.classList.toggle('sel', p.paid > 0); }
+  if (tf && tp){ tf.classList.toggle('sel', mintMode === 'free'); tp.classList.toggle('sel', mintMode === 'paid'); }
+  const mn = document.getElementById('modeNote');
+  if (mn) mn.textContent = mintMode === 'free' ? d.modeFreeNote : d.modePaidNote(freeCap);
 }
 function pickTier(which){
+  mintMode = which;
   const freeCap = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
   const inp = document.getElementById('qty');
   if (which === 'free'){ inp.value = Math.max(1, freeCap); }
-  else { inp.value = freeCap + 1; }
+  else { inp.value = 1; }
   syncMint();
 }
 
@@ -616,14 +643,17 @@ async function mintNow(){
     const signer = await bp.getSigner();
     const c = new ethers.Contract(CONTRACT_ADDRESS, TALVIO_ABI_MIN, signer);
     if (!(await c.mintOpen())){ alert(d.mintClosedMsg); return; }
+    await loadWalletLimits(); // fresh on-chain allowance before computing anything
     const q = clampQty();
-    const cost = await c.costFor(wallet, q);
+    const freeCapNow = walletFreeLeft !== null ? walletFreeLeft : FREE_PER_WALLET;
+    const sendQty = mintMode === 'paid' ? freeCapNow + q : q; // paid mode: the contract folds the remaining free mints into this same call
+    const cost = await c.costFor(wallet, sendQty);
     // Pre-flight balance check: fail with a clear message instead of a raw wallet error
     try{
       const bal = await bp.getBalance(wallet);
       let need = cost;
       try{
-        const gasLimit = await c.mint.estimateGas(q, { value: cost });
+        const gasLimit = await c.mint.estimateGas(sendQty, { value: cost });
         const feeData = await bp.getFeeData();
         if (feeData && feeData.gasPrice) need = cost + gasLimit * feeData.gasPrice;
       }catch(estErr){ /* estimation reverted (e.g. limit) — let the send below surface the real reason */ }
@@ -632,7 +662,7 @@ async function mintNow(){
         return;
       }
     }catch(balErr){ /* balance read failed — proceed and let the wallet handle it */ }
-    const tx = await c.mint(q, { value: cost });
+    const tx = await c.mint(sendQty, { value: cost });
     await tx.wait();
     alert(d.mintSuccessMsg(tx.hash));
     refreshChain();
