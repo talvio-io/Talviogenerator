@@ -1,7 +1,7 @@
 {
   "name": "Talvio Generator #06702 — Black Dot",
   "description": "Talvio Generator — Black Dot robot collection of 10,000. Pixel robot waving hello, generated from the #0001 main character trait system.",
-  "image": "06702.png",
+  "image": "https://talviogenerate.com/collection-10000/images/06702.png",
   "attributes": [
     {
       "trait_type": "Background",
